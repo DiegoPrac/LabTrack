@@ -104,6 +104,18 @@ Isi `APP_KEY` dapat dibuat dengan Laravel setelah container berjalan.
 docker build -t labtrack-app:1.0 .
 ```
 
+### Alternatif: Pull image dari Docker Hub
+
+Image LabTrack juga dipublikasikan pada Docker Hub:
+
+```bash
+docker pull diegoprac/labtrack-app:1.0
+```
+
+Docker Hub: https://hub.docker.com/r/diegoprac/labtrack-app
+
+Jika menggunakan image dari Docker Hub, gunakan `diegoprac/labtrack-app:1.0` pada perintah `docker run` menggantikan `labtrack-app:1.0`.
+
 ### 7. Jalankan container Laravel
 
 ```bash
@@ -180,4 +192,5 @@ Aplikasi LabTrack telah berhasil:
 - terhubung dengan container MySQL,
 - menggunakan Docker network khusus,
 - menggunakan persistent volume,
+- dipublikasikan pada Docker Hub sebagai `diegoprac/labtrack-app:1.0`,
 - dan diuji setelah restart container tanpa kehilangan data.

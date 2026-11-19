@@ -68,22 +68,24 @@ docker run -d \
   --name labtrack-db \
   --network labtrack-net \
   -v labtrack-db-data:/var/lib/mysql \
-  -e MYSQL_ROOT_PASSWORD=root123 \
+  -e MYSQL_ROOT_PASSWORD=GANTI_PASSWORD_ROOT \
   -e MYSQL_DATABASE=labtrack \
   -e MYSQL_USER=labtrack \
-  -e MYSQL_PASSWORD=labtrack123 \
+  -e MYSQL_PASSWORD=GANTI_PASSWORD_DB \
   mysql:8.4
 ```
 
-> Password pada perintah di atas hanya digunakan untuk kebutuhan demonstrasi lokal tugas. Untuk penggunaan nyata, gunakan password yang lebih aman dan jangan menyimpan credential sensitif pada repository.
+> Ganti kedua nilai contoh dengan kata sandi lokal pilihan Anda sebelum menjalankan MySQL. Gunakan kata sandi pengguna MySQL yang sama pada `DB_PASSWORD`.
 
 ### 5. Siapkan file environment Docker
 
 Salin file contoh:
 
-```bash
-cp .env.docker.example .env.docker
+```powershell
+Copy-Item .env.docker.example .env.docker
 ```
+
+Di Bash, gunakan `cp .env.docker.example .env.docker`. Contoh `docker run` di bawah menggunakan sintaks Bash. Di PowerShell, gabungkan argumen `docker run` dalam satu baris.
 
 Kemudian sesuaikan konfigurasi database pada `.env.docker`:
 
@@ -93,10 +95,8 @@ DB_HOST=labtrack-db
 DB_PORT=3306
 DB_DATABASE=labtrack
 DB_USERNAME=labtrack
-DB_PASSWORD=labtrack123
+DB_PASSWORD=GANTI_PASSWORD_DB
 ```
-
-Isi `APP_KEY` dapat dibuat dengan Laravel setelah container berjalan.
 
 ### 6. Build image aplikasi
 
@@ -116,7 +116,15 @@ Docker Hub: https://hub.docker.com/r/diegoprac/labtrack-app
 
 Jika menggunakan image dari Docker Hub, gunakan `diegoprac/labtrack-app:1.0` pada perintah `docker run` menggantikan `labtrack-app:1.0`.
 
-### 7. Jalankan container Laravel
+### 7. Buat kunci aplikasi dan jalankan container Laravel
+
+Gunakan nama image yang dipilih pada langkah 6. Contoh berikut menggunakan image lokal.
+
+```bash
+docker run --rm labtrack-app:1.0 php artisan key:generate --show
+```
+
+Salin hasilnya ke `APP_KEY` pada `.env.docker` sebelum menjalankan container. Tunggu hingga MySQL siap menerima koneksi sebelum menjalankan migrasi.
 
 ```bash
 docker run -d \
@@ -127,17 +135,14 @@ docker run -d \
   labtrack-app:1.0
 ```
 
-Jika `APP_KEY` masih kosong, jalankan:
-
-```bash
-docker exec labtrack-app php artisan key:generate
-```
-
 ### 8. Jalankan migration dan seeder
 
 ```bash
-docker exec labtrack-app php artisan migrate:fresh --seed
+docker exec labtrack-app php artisan migrate
+docker exec labtrack-app php artisan db:seed --class=DeviceSeeder
 ```
+
+Jalankan seeder satu kali pada database baru untuk mengisi data demonstrasi. Lewati seeding jika data awal sudah tersedia. Gunakan `migrate` untuk menerapkan perubahan skema tanpa menghapus tabel.
 
 ### 9. Buka aplikasi
 
@@ -170,7 +175,7 @@ docker volume inspect labtrack-db-data
 Memeriksa tabel database:
 
 ```bash
-docker exec -it labtrack-db mysql -u labtrack -plabtrack123 labtrack
+docker exec -it labtrack-db mysql -u labtrack -p labtrack
 ```
 
 Kemudian pada MySQL:
